@@ -103,7 +103,7 @@ class SaverTXT(SaverABC):
         self.filename = filename
 
     def save(self, data, mode):
-        d = [item._employer['id'] for item in data]
+        d = [item._employer.id for item in data]
         text = '\n'.join(set(d))
 
         with open(self.filename, 'w', encoding="UTF-8") as f:

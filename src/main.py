@@ -93,7 +93,7 @@ def hh_ru_user_interface(filename=FILENAME):
 def hh_ru_get_all_vacancies_all_employers():
     hh_api = HHAPI()
     result = hh_api.get_vacancies()
-    [print(item._employer['id'], ':', item.name) for item in result]
+    [print(item._employer.id, ':', item.name) for item in result]
 
     new_saver = SaverTXT("../data/employers.txt")
     new_saver.save(result, 'w')
@@ -106,4 +106,4 @@ def create_tables():
 
 #########################
 
-#hh_ru_get_all_vacancies_all_employers()
+hh_ru_get_all_vacancies_all_employers()

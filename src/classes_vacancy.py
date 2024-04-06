@@ -35,7 +35,12 @@ class Vacancy:
 
         self._url = url
         self._published_at = datetime.strptime(published_at, DT_FORMAT)
-        self._employer = employer
+        self._employer = Employer(employer['id'],
+                                  employer['name'],
+                                  employer['vacancies_url'],
+                                  employer['accredited_it_employer'],
+                                  employer['trusted'],
+                                  )
         self._address = address
 
     def __repr__(self):
@@ -170,5 +175,20 @@ class Vacancy:
 
     def get_experience(self):
         return self._experience['id']
+
+
+class Employer:
+
+    def __init__(self, emp_id: int, name: str, url: str,
+                 accredited_it_employer: bool, trusted: bool):
+
+        self.id = emp_id
+        self.name = name
+
+        self._vacancies_url = url
+        self._accredited = accredited_it_employer
+        self._trusted = trusted
+
+
 
 ##################

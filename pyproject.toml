@@ -7,7 +7,13 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+psycopg2 = "^2.9.9"
+requests = "^2.31.0"
 
+
+[tool.poetry.group.dev.dependencies]
+mock = "^5.1.0"
+pytest = "^8.1.1"
 
 [build-system]
 requires = ["poetry-core"]

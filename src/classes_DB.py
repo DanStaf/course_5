@@ -1,10 +1,69 @@
+import psycopg2
+
+
 class DBManager:
     """
     Класс DBManager должен использовать библиотеку psycopg2 для работы с БД.
     """
 
     def __init__(self):
-        pass
+
+        self.conn_params = {
+            "host": "localhost",
+            "database": "hh",
+            "user": "postgres",
+            "password": "admin"
+        }
+
+    def create_tables(self):
+
+        query_vacancies = """CREATE TABLE employers
+(
+    employer_id int PRIMARY KEY,
+    name varchar(100),
+    vacancies_url text,
+    accredited boolean,
+    trusted boolean
+);"""
+
+        query_employers = """CREATE TABLE vacancies
+(
+    vacancy_id serial PRIMARY KEY,
+    name varchar(100),
+    requirement text,
+    responsibility text,
+    salary int,
+    experience text,
+    employment text,
+    url text,
+    published_at date,
+    employer_id int,
+    address text        
+);"""
+
+        with psycopg2.connect(**self.conn_params) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query_vacancies)
+                cur.execute(query_employers)
+
+            conn.commit()
+
+    def fill_table(self, table_name, data):
+        """
+        data: matrix (list of lists)
+        """
+
+        data_len = len(data[0])
+        insert_text = ("%s, "*data_len)[:-2]
+
+        query_fill_table = f"INSERT INTO {table_name} VALUES ({insert_text})"
+
+        with psycopg2.connect(**self.conn_params) as conn:
+            with conn.cursor() as cur:
+                cur.executemany(query_fill_table, data)
+
+            conn.commit()
+
 
     def get_companies_and_vacancies_count(self):
         """

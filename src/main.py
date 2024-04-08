@@ -2,6 +2,7 @@ from src.classes_API import HHAPI
 from src.classes_aux import UserParameters
 from src.classes_savers import SaverJSON, SaverTXT
 from src.classes_vacancy import Vacancy
+from src.classes_DB import DBManager
 
 FILENAME = "data/response_result.json"
 
@@ -99,11 +100,14 @@ def hh_ru_get_all_vacancies_all_employers():
     new_saver.save(result, 'w')
 
 
-def create_tables():
+def create_and_fill_tables():
 
-    pass
+    db = DBManager()
+    #db.create_tables()
+    db.fill_table('employers', [[1, 1, 1, True, True]])
 
 
 #########################
 
-hh_ru_get_all_vacancies_all_employers()
+#hh_ru_get_all_vacancies_all_employers()
+create_and_fill_tables()

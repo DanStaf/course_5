@@ -34,6 +34,7 @@ class HHAPI(AbcAPI):
         self.per_page = 100
         self.experience = None
         self.salary = None
+        self.employer_id = user_parameters
 
 
     @staticmethod
@@ -142,7 +143,8 @@ class HHAPI(AbcAPI):
             parameters['experience'] = self.experience
         if self.salary:
             parameters['salary'] = self.salary
-
+        if self.employer_id:
+            parameters['employer_id'] = self.employer_id
 
         url_get = 'https://api.hh.ru/vacancies'
 

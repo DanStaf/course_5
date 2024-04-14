@@ -176,6 +176,34 @@ class Vacancy:
     def get_experience(self):
         return self._experience['id']
 
+    def prepare_for_db(self):
+        """
+        vacancy_id serial PRIMARY KEY,
+
+        name varchar(100),
+        requirement text,
+        responsibility text,
+        salary text,
+        experience text,
+        employment text,
+        url text,
+        published_at date,
+        employer_id int,
+        address text
+        """
+
+        return [self.name,
+                self.requirement,
+                self.responsibility,
+                str(self._salary),
+                str(self._experience),
+                str(self._employment),
+                self._url,
+                self._published_at,
+                self._employer.id,
+                str(self._address)
+                ]
+
 
 class Employer:
 
@@ -189,6 +217,24 @@ class Employer:
         self._accredited = accredited_it_employer
         self._trusted = trusted
 
+    def __repr__(self):
 
+        a = "+" if self._accredited else "-"
+        t = "+" if self._trusted else "-"
+        return f"Employer: {self.id} / {self.name} / {a}{t}"
+
+    def prepare_for_db(self):
+        """     employer_id int PRIMARY KEY,
+                name varchar(100),
+                vacancies_url text,
+                accredited boolean,
+                trusted boolean
+        """
+
+        return [self.id,
+                self.name,
+                self._vacancies_url,
+                self._accredited,
+                self._trusted]
 
 ##################

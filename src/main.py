@@ -5,7 +5,7 @@ from src.classes_vacancy import Vacancy
 from src.classes_DB import DBManager
 
 FILENAME = "data/response_result.json"
-
+FILE_EMP = "../data/employers.txt"
 
 def collect_user_parameters():
     """
@@ -91,23 +91,87 @@ def hh_ru_user_interface(filename=FILENAME):
 #hh_ru_user_interface()
 
 
-def hh_ru_get_all_vacancies_all_employers():
+def hh_ru_get_all_vacancies_all_employers(filename=FILE_EMP):
     hh_api = HHAPI()
     result = hh_api.get_vacancies()
-    [print(item._employer.id, ':', item.name) for item in result]
 
-    new_saver = SaverTXT("../data/employers.txt")
+    new_saver = SaverTXT(filename)
     new_saver.save(result, 'w')
 
+    return result
 
-def create_and_fill_tables():
 
+def hh_ru_get_vacancies(ten_employers):
+    hh_api = HHAPI(ten_employers)
+    return hh_api.get_vacancies()
+
+
+def get_ten_employers_from_file(filename=FILE_EMP):
+    new_saver = SaverTXT(filename)
+    employers_list = new_saver.load()
+    if len(employers_list) >= 10:
+        return employers_list[:10]
+    else:
+        return employers_list
+
+
+def print_vacancies(data):
+    print("Вакансий: ", len(data))
+    [print(item._employer.id, ':', item.name) for item in data]
+
+    emp_set = set([item._employer.id for item in data])
+    print("Работодателей: ", len(emp_set))
+    print(emp_set)
+
+
+def get_employers(vacancies):
+
+    employers = [item._employer for item in vacancies]
+
+    employers_set = []
+    for new_employer in employers:
+
+        id_set = [old_employer.id for old_employer in employers_set]
+        if new_employer.id not in id_set:
+            employers_set.append(new_employer)
+
+    #[print(item) for item in employers_set]
+
+    return employers_set  # list
+
+
+def interface():
+
+    print("Hello!")
+
+    print("\nПолучаем все вакансии с сайта hh.ru:")
+    all_vacancies = hh_ru_get_all_vacancies_all_employers()
+    print_vacancies(all_vacancies)
+
+    print("\nВыбираем 10 работодателей:")
+    ten_employers = get_ten_employers_from_file()
+    print(ten_employers)
+
+    print("\nПолучаем вакансии с сайта hh.ru от 10 работодателей:")
+    vacancies = hh_ru_get_vacancies(ten_employers)
+    print_vacancies(vacancies)
+
+    print("\nЗаписываем в БД:")
     db = DBManager()
-    #db.create_tables()
-    db.fill_table('employers', [[1, 1, 1, True, True]])
+    db.create_tables()
 
+    employers = get_employers(vacancies)
+
+    db.fill_table('employers', [item.prepare_for_db() for item in employers])
+
+    columns = 'name, requirement, responsibility, salary, experience, employment, url, published_at, employer_id, address'
+    db.fill_table('vacancies', [item.prepare_for_db() for item in vacancies], columns)
+
+    print("Bye!")
 
 #########################
 
 #hh_ru_get_all_vacancies_all_employers()
-create_and_fill_tables()
+#create_and_fill_tables()
+
+interface()

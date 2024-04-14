@@ -110,7 +110,16 @@ class SaverTXT(SaverABC):
             f.write(text)
 
     def load(self):
-        pass
+
+        with open(self.filename, 'r', encoding="UTF-8") as f:
+            result = f.read()
+
+        if result:
+            return result.split('\n')
+        else:
+            return []
+
+
 
     def clear(self):
         pass

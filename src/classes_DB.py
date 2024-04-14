@@ -15,7 +15,29 @@ class DBManager:
             "password": "admin"
         }
 
+    def check(self, table_name):
+
+        query_check = f"""SELECT EXISTS
+(
+    SELECT * FROM INFORMATION_SCHEMA.TABLES
+    WHERE table_catalog = 'hh'
+    AND TABLE_NAME = '{table_name}') AS table_exists"""
+
+        with psycopg2.connect(**self.conn_params) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query_check)
+
+                rows = cur.fetchall()
+                return rows[0][0]
+
     def create_tables(self):
+
+        e = self.check('employers')
+        v = self.check('vacancies')
+        if e and v:
+            return "Tables exists"
+        elif e or v:
+            return "One of the tables exists"
 
         query_vacancies = """CREATE TABLE employers
 (
@@ -32,12 +54,12 @@ class DBManager:
     name varchar(100),
     requirement text,
     responsibility text,
-    salary int,
+    salary text,
     experience text,
     employment text,
     url text,
     published_at date,
-    employer_id int,
+    employer_id int REFERENCES employers(employer_id) NOT NULL,
     address text        
 );"""
 
@@ -48,7 +70,9 @@ class DBManager:
 
             conn.commit()
 
-    def fill_table(self, table_name, data):
+        return "Tables created"
+
+    def fill_table(self, table_name, data, columns=""):
         """
         data: matrix (list of lists)
         """
@@ -56,7 +80,9 @@ class DBManager:
         data_len = len(data[0])
         insert_text = ("%s, "*data_len)[:-2]
 
-        query_fill_table = f"INSERT INTO {table_name} VALUES ({insert_text})"
+        columns_for_insert_with_serial = f"({columns}) " if columns else ""
+
+        query_fill_table = f"INSERT INTO {table_name}{columns_for_insert_with_serial} VALUES ({insert_text})"
 
         with psycopg2.connect(**self.conn_params) as conn:
             with conn.cursor() as cur:

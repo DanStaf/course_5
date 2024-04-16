@@ -158,20 +158,52 @@ def interface():
 
     print("\nЗаписываем в БД:")
     db = DBManager()
+    #db.drop_tables()
     db.create_tables()
 
     employers = get_employers(vacancies)
 
-    db.fill_table('employers', [item.prepare_for_db() for item in employers])
+    employers_data = [item.prepare_for_db() for item in employers]
+    employers_data_unique = db.check_lines_employers(employers_data)
 
-    columns = 'name, requirement, responsibility, salary, experience, employment, url, published_at, employer_id, address'
-    db.fill_table('vacancies', [item.prepare_for_db() for item in vacancies], columns)
+    if employers_data_unique:
+        print('Работодатели: ', [item[0] for item in employers_data_unique])
+        db.fill_table('employers', employers_data_unique)
+
+    vacancies_data = [item.prepare_for_db() for item in vacancies]
+    vacancies_data_unique = db.check_lines_vacancies(vacancies_data)
+
+    if vacancies_data_unique:
+        print('Вакансии:')
+        [print(item[11], ':' , item[0]) for item in vacancies_data_unique]
+        columns = 'name, requirement, responsibility, salary_from, salary_to, salary_currency, salary_gross, experience, employment, url, published_at, employer_id, address'
+        db.fill_table('vacancies', [item.prepare_for_db() for item in vacancies], columns)
+
+    print("\nЗапросы из БД:")
+
+    print("\nКоличество вакансий по компаниям:")
+    vacancies_per_companies = db.get_companies_and_vacancies_count()
+    [print(item) for item in vacancies_per_companies]
+
+    print("\nСписок всех вакансий:")
+    all_vacancies_from_db = db.get_all_vacancies()
+    [print(item) for item in all_vacancies_from_db]
+
+    print("\nСредняя зарплата от/до:")
+    avg_salary = db.get_avg_salary()
+    print(avg_salary)
+
+    print("\nВакансии, у которых зарплата выше средней:")
+    vacancies_with_higher_salary = db.get_vacancies_with_higher_salary()
+    [print(item) for item in vacancies_with_higher_salary]
+
+    print("\nВакансии, в названии которых содержатся переданные в метод слова:")
+    vacancies_with_higher_salary = db.get_vacancies_with_keyword('Менеджер')
+    [print(item) for item in vacancies_with_higher_salary]
 
     print("Bye!")
 
 #########################
 
-#hh_ru_get_all_vacancies_all_employers()
-#create_and_fill_tables()
-
 interface()
+
